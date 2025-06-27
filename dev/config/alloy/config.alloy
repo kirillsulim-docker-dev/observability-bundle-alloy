@@ -1,0 +1,51 @@
+logging {
+  level  = "info"
+  format = "logfmt"
+}
+
+livedebugging {
+  enabled = true
+}
+
+otelcol.receiver.otlp "main" {
+  grpc {
+    endpoint = "0.0.0.0:4317"
+  }
+
+  http {
+    endpoint = "0.0.0.0:4318"
+  }
+
+  output {
+    metrics = [otelcol.processor.filter.metrics_only.input]
+    logs    = [otelcol.processor.filter.metrics_only.input]
+    traces  = [otelcol.processor.filter.metrics_only.input]
+  }
+}
+
+
+otelcol.processor.filter "metrics_only" {
+  traces {
+    span = [
+      `true`,
+    ]
+  }
+
+  logs {
+    log_record = [
+      `true`,
+    ]
+  }
+
+  output {
+    metrics = [otelcol.exporter.otlphttp.prometheus.input]
+    logs    = [otelcol.exporter.otlphttp.prometheus.input]
+    traces  = [otelcol.exporter.otlphttp.prometheus.input]
+  }
+}
+
+otelcol.exporter.otlphttp "prometheus" {
+  client {
+    endpoint = "http://prometheus:9090/api/v1/otlp"
+  }
+}

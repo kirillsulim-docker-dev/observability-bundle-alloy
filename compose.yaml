@@ -1,0 +1,47 @@
+services:
+  alloy:
+    image: 'grafana/alloy:latest'
+    container_name: obsb-alloy
+    restart: unless-stopped
+    ports:
+      - '4317:4317'
+      - '4318:4318'
+      - '12345:12345'
+    volumes:
+      - ./dev/data/alloy:/var/lib/alloy/data
+      - ./dev/config/alloy/config.alloy:/etc/alloy/config.alloy
+    command: >
+      run --server.http.listen-addr=0.0.0.0:12345 
+          --storage.path=/var/lib/alloy/data /etc/alloy/config.alloy
+          --stability.level experimental
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: obsb-prometheus
+    user: root
+    restart: unless-stopped
+    volumes:
+      - ./dev/config/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
+      - ./dev/data/prometheus:/prometheus
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.path=/prometheus'
+      - '--web.console.libraries=/etc/prometheus/console_libraries'
+      - '--web.console.templates=/etc/prometheus/consoles'
+      - '--web.enable-lifecycle'
+      - '--web.enable-otlp-receiver'
+    ports:
+      - '9090:9090'
+  grafana:
+    image: grafana/grafana:latest
+    container_name: obsb-grafana
+    user: root
+    restart: unless-stopped
+    volumes:
+      - ./dev/data/grafana:/var/lib/grafana
+      - ./dev/config/grafana/provisioning:/etc/grafana/provisioning
+      #- ./dev/config/grafana/custom.ini:/etc/grafana/custom.ini
+    environment:
+      GF_SECURITY_ADMIN_PASSWORD: "secret"
+      GF_USERS_ALLOW_SIGN_UP: "false" 
+    ports:
+      - '3000:3000'
