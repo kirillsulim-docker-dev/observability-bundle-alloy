@@ -4,6 +4,6 @@ Observability docker-compose file with alloy
 
 ## Links
 
-[Grafana](http://localhost:3000) (login: `admin`, password: `secret`)
-[Prometheus](http://localhost:9090)
-[Alloy](http://localhost:12345)
+- [Grafana](http://localhost:3000) (login: `admin`, password: `secret`)
+- [Prometheus](http://localhost:9090)
+- [Alloy](http://localhost:12345)
